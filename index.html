@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>32+ Card Bet</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <div class="logo-circle">32+</div>
+        <div>
+          <div class="brand-name">32+ Card Bet</div>
+          <div class="tagline">Hit 32 or higher, double your bet.</div>
+        </div>
+      </div>
+      <div class="bankroll">
+        <div class="label">Bankroll</div>
+        <div class="value" id="bankrollDisplay">$200.00</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="controls card">
+        <h2>Table Settings</h2>
+        <div class="field">
+          <label>Players (up to 5)</label>
+          <div class="player-names">
+            <input class="player-name-input" id="playerName1" type="text" value="Player 1" />
+            <input class="player-name-input" id="playerName2" type="text" placeholder="Player 2" />
+            <input class="player-name-input" id="playerName3" type="text" placeholder="Player 3" />
+            <input class="player-name-input" id="playerName4" type="text" placeholder="Player 4" />
+            <input class="player-name-input" id="playerName5" type="text" placeholder="Player 5" />
+          </div>
+          <p class="help-text">Leave blank to exclude a seat. Each active player gets 4 unique cards.</p>
+        </div>
+        <div class="field">
+          <label for="bankrollInput">Bankroll ($)</label>
+          <input id="bankrollInput" type="number" min="1" step="1" value="200" />
+        </div>
+        <div class="field switch">
+          <label for="sfxToggle">Sound effects</label>
+          <label class="toggle">
+            <input id="sfxToggle" type="checkbox" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="maxBetInput">Max Bet ($)</label>
+          <input id="maxBetInput" type="number" min="1" step="1" value="50" />
+          <p class="help-text">Ante is always 10% of max bet.</p>
+        </div>
+        <div class="field">
+          <label for="seedInput">Seed (optional)</label>
+          <input id="seedInput" type="number" step="1" placeholder="e.g., 42" />
+          <p class="help-text">Use a seed for reproducible shuffles.</p>
+        </div>
+        <div class="actions">
+          <button id="startRoundBtn" class="primary">Start Round</button>
+          <button id="resetBtn" class="ghost">Reset Bankroll</button>
+        </div>
+      </section>
+
+      <section class="table card">
+        <div class="table-header">
+          <h2>Current Round</h2>
+          <div class="meta">
+            <span id="anteDisplay">Ante: $5.00</span>
+            <span id="maxBetDisplay">Max Bet: $50.00</span>
+          </div>
+        </div>
+
+        <div class="cards" id="cardsContainer">
+          <!-- Cards rendered here -->
+        </div>
+
+        <p class="help-text">Each player can place a bet below after their first card flips.</p>
+
+        <div class="status">
+          <div class="label">Status</div>
+          <div id="statusText">Waiting to start a round.</div>
+        </div>
+
+        <div class="result">
+          <div class="label">Result</div>
+          <div class="result-row">
+            <div class="result-block">
+              <div class="sub-label">Total</div>
+              <div class="result-value" id="resultValue">--</div>
+            </div>
+            <div class="result-block">
+              <div class="sub-label">Payout</div>
+              <div class="result-payout" id="payoutValue">--</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="log card">
+        <h2>Round Summary</h2>
+        <ul id="historyList"></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="summaryOverlay" class="summary-overlay hidden">
+    <div class="summary-modal" id="summaryModal">
+      <div class="summary-confetti"></div>
+      <div class="summary-title">Round Result</div>
+      <div class="summary-values" id="summaryValues">
+        <div class="summary-block total">
+          <div class="summary-label">Total</div>
+          <div class="summary-value" id="summaryTotal">--</div>
+        </div>
+        <div class="summary-block payout">
+          <div class="summary-label">Payout</div>
+          <div class="summary-value" id="summaryPayout">--</div>
+        </div>
+      </div>
+      <div class="summary-note" id="summaryNote">—</div>
+      <div class="summary-continue">Click to continue</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
