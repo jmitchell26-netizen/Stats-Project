@@ -20,19 +20,21 @@ const els = {
   sfxToggle: document.getElementById("sfxToggle"),
   startRoundBtn: document.getElementById("startRoundBtn"),
   resetBtn: document.getElementById("resetBtn"),
+  nextRoundBtn: document.getElementById("nextRoundBtn"),
   cardsContainer: document.getElementById("cardsContainer"),
   statusText: document.getElementById("statusText"),
   anteDisplay: document.getElementById("anteDisplay"),
   maxBetDisplay: document.getElementById("maxBetDisplay"),
   historyList: document.getElementById("historyList"),
-  resultValue: document.getElementById("resultValue"),
-  payoutValue: document.getElementById("payoutValue"),
+  houseRound: document.getElementById("houseRound"),
+  houseTotal: document.getElementById("houseTotal"),
   summaryOverlay: document.getElementById("summaryOverlay"),
   summaryModal: document.getElementById("summaryModal"),
   summaryValues: document.getElementById("summaryValues"),
   summaryTotal: document.getElementById("summaryTotal"),
   summaryPayout: document.getElementById("summaryPayout"),
   summaryNote: document.getElementById("summaryNote"),
+  summaryContinue: document.querySelector(".summary-continue"),
   playerNameInputs: Array.from(document.querySelectorAll(".player-name-input")),
 };
 els.resultContainer = document.querySelector(".result");
@@ -54,6 +56,8 @@ let state = {
   sfxEnabled: true,
   audioCtx: null,
   summaryTimer: null,
+  houseRound: 0,    // House profit this round
+  houseTotal: 0,    // House profit all-time
 };
 
 function mulberry32(seed) {
@@ -175,6 +179,42 @@ function setStatus(text) {
   els.statusText.textContent = text;
 }
 
+function updateRoundButtons() {
+  // Update start/end button text based on round state
+  if (state.roundActive) {
+    els.startRoundBtn.textContent = "End Round";
+    els.startRoundBtn.classList.add("end-round");
+    if (els.nextRoundBtn) els.nextRoundBtn.classList.add("hidden");
+  } else {
+    els.startRoundBtn.textContent = "Start Round";
+    els.startRoundBtn.classList.remove("end-round");
+    // Show "Next Round" button if we have players (i.e., a round just finished)
+    if (els.nextRoundBtn && state.players.length > 0) {
+      els.nextRoundBtn.classList.remove("hidden");
+    }
+  }
+}
+
+function endRound() {
+  state.roundActive = false;
+  state.activeIndex = -1;
+  state.players.forEach((p) => {
+    p.awaitingBet = false;
+    p.settled = true;
+  });
+  renderPlayers();
+  updateRoundButtons();
+  setStatus("Round ended early.");
+}
+
+function handleStartEndClick() {
+  if (state.roundActive) {
+    endRound();
+  } else {
+    startRound();
+  }
+}
+
 function addHistoryEntry(text, outcome) {
   const li = document.createElement("li");
   li.innerHTML = `${outcome ? `<span class="highlight">${outcome}</span> — ` : ""}${text}`;
@@ -228,10 +268,16 @@ function startRound() {
     };
   });
 
+  // Reset round profit
+  state.houseRound = 0;
+
   state.players.forEach((p) => {
     if (p.bankroll >= state.ante) {
       p.bankroll -= state.ante;
       p.outcome = `Paid ante $${state.ante.toFixed(2)}.`;
+      // House collects ante
+      state.houseRound += state.ante;
+      state.houseTotal += state.ante;
     } else {
       p.awaitingBet = false;
       p.settled = true;
@@ -247,7 +293,8 @@ function startRound() {
 
   renderPlayers();
   updateDisplays();
-  clearResult();
+  updateHouseDisplay();
+  updateRoundButtons();
   setStatus(
     state.roundActive
       ? `Dealt ${playerCount} player${playerCount > 1 ? "s" : ""}. ${state.players[state.activeIndex].name}'s turn.`
@@ -294,7 +341,7 @@ function placeBet(playerId, betValue) {
     player.outcome = outcome;
     renderPlayers(player.id);
     playSfx("flip");
-    showResult("--", "--");
+    updateHouseDisplay();
     addHistoryEntry(`${player.name}: ${outcome}`, "Push");
     setStatus(`${player.name}: ${outcome}`);
     playSfx("push");
@@ -307,12 +354,22 @@ function placeBet(playerId, betValue) {
   player.bankroll -= bet;
   total = scoreHand(player.hand);
   player.total = total;
+  
+  // Calculate house profit from this bet
+  // House collects bet, pays out payout
+  let houseProfit = bet; // House receives bet
+  
   if (total >= 32) {
     payout = bet * 2;
     outcome = `Win! Score ${total} pays 2x.`;
+    houseProfit -= payout; // House pays out (net: bet - 2*bet = -bet)
   } else {
     outcome = `Lose. Score ${total} below 32.`;
+    // House keeps the bet (net: +bet)
   }
+  
+  state.houseRound += houseProfit;
+  state.houseTotal += houseProfit;
 
   player.bankroll += payout;
   player.payout = payout;
@@ -322,6 +379,7 @@ function placeBet(playerId, betValue) {
   renderPlayers(player.id);
   playSfx("flip");
   updateDisplays();
+  updateHouseDisplay();
 
   const detail = `${player.name} bet $${bet.toFixed(2)} | Payout $${payout.toFixed(
     2
@@ -329,7 +387,7 @@ function placeBet(playerId, betValue) {
   setStatus(detail);
   addHistoryEntry(detail, total >= 32 ? "Win" : "Lose");
 
-  animateResult({ total, payout });
+  animateHouseFlash();
   showSummaryOverlay({
     total,
     payout,
@@ -350,9 +408,13 @@ function resetBankroll() {
   state.players.forEach((p) => {
     p.bankroll = bankroll;
   });
+  // Also reset house stats
+  state.houseRound = 0;
+  state.houseTotal = 0;
   updateDisplays();
+  updateHouseDisplay();
   renderPlayers();
-  setStatus("Bankroll reset for all players.");
+  setStatus("Bankroll & house stats reset.");
 }
 
 function formatCard(card) {
@@ -367,23 +429,37 @@ function cardImageUrl(card) {
 }
 
 function clearResult() {
-  showResult("--", "--");
+  // Reset round profit but keep total
+  state.houseRound = 0;
+  updateHouseDisplay();
   clearResultClasses();
 }
 
-function showResult(totalText, payoutText) {
-  els.resultValue.textContent = totalText;
-  els.payoutValue.textContent = payoutText;
-  els.resultValue.classList.remove("flash");
-  els.payoutValue.classList.remove("flash");
+function updateHouseDisplay() {
+  if (els.houseRound) {
+    const sign = state.houseRound >= 0 ? "+" : "";
+    els.houseRound.textContent = `${sign}$${state.houseRound.toFixed(2)}`;
+    els.houseRound.classList.toggle("positive", state.houseRound > 0);
+    els.houseRound.classList.toggle("negative", state.houseRound < 0);
+  }
+  if (els.houseTotal) {
+    const sign = state.houseTotal >= 0 ? "+" : "";
+    els.houseTotal.textContent = `${sign}$${state.houseTotal.toFixed(2)}`;
+    els.houseTotal.classList.toggle("positive", state.houseTotal > 0);
+    els.houseTotal.classList.toggle("negative", state.houseTotal < 0);
+  }
 }
 
 function clearResultClasses() {
   if (els.resultContainer) {
     els.resultContainer.classList.remove("result-win", "result-lose", "result-push");
   }
-  els.resultValue.classList.remove("flash-anim", "flash");
-  els.payoutValue.classList.remove("flash-anim", "flash");
+  if (els.houseRound) {
+    els.houseRound.classList.remove("flash-anim", "flash");
+  }
+  if (els.houseTotal) {
+    els.houseTotal.classList.remove("flash-anim", "flash");
+  }
 }
 
 function animateCount(el, target, { duration = 1000, prefix = "", suffix = "", decimals = 0 } = {}) {
@@ -441,6 +517,15 @@ function showSummaryOverlay({ total, payout, outcome }) {
     els.summaryNote.textContent = "";
   }
 
+  // Hide "Click to continue" initially for win/lose; show immediately for push
+  if (els.summaryContinue) {
+    if (isPush) {
+      els.summaryContinue.classList.remove("hidden");
+    } else {
+      els.summaryContinue.classList.add("hidden");
+    }
+  }
+
   els.summaryOverlay.classList.remove("hidden");
   if (els.summaryModal) {
     els.summaryModal.classList.remove("pop");
@@ -464,6 +549,10 @@ function showSummaryOverlay({ total, payout, outcome }) {
   // Delay numbers by 1.5s, then animate total and payout.
   state.summaryTimer = setTimeout(() => {
     state.summaryTimer = null;
+    // Show "Click to continue" now that numbers are animating
+    if (els.summaryContinue) {
+      els.summaryContinue.classList.remove("hidden");
+    }
     if (els.summaryValues) {
       els.summaryValues.classList.remove("outcome-phase");
       els.summaryValues.classList.add("show-numbers");
@@ -485,34 +574,24 @@ function showSummaryOverlay({ total, payout, outcome }) {
   }, 1500);
 }
 
-function animateResult({ total, payout }) {
+function animateHouseFlash() {
   clearResultClasses();
-  const outcomeClass = payout > 0 ? "result-win" : total === 0 ? "result-push" : "result-lose";
-  els.resultContainer?.classList.add(outcomeClass);
-  els.resultValue.classList.remove("flash", "flash-anim");
-  els.payoutValue.classList.remove("flash", "flash-anim");
-
-  const start = performance.now();
-  const duration = 900;
-
-  const tick = (now) => {
-    const progress = Math.min(1, (now - start) / duration);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = Math.round(total * eased);
-    els.resultValue.textContent = current;
-    if (progress < 1) {
-      requestAnimationFrame(tick);
-    } else {
-      els.resultValue.classList.add("flash");
-      els.payoutValue.classList.add("flash");
-    }
-  };
-
-  els.payoutValue.textContent = `${payout > 0 ? "+" : ""}$${payout.toFixed(2)}`;
-  requestAnimationFrame(tick);
-
-  els.resultValue.classList.add("flash-anim");
-  els.payoutValue.classList.add("flash-anim");
+  const isPositive = state.houseRound > 0;
+  const isNegative = state.houseRound < 0;
+  
+  if (els.resultContainer) {
+    els.resultContainer.classList.toggle("result-win", isNegative); // House down = player won
+    els.resultContainer.classList.toggle("result-lose", isPositive); // House up = player lost
+  }
+  
+  if (els.houseRound) {
+    els.houseRound.classList.add("flash-anim");
+    setTimeout(() => els.houseRound.classList.add("flash"), 400);
+  }
+  if (els.houseTotal) {
+    els.houseTotal.classList.add("flash-anim");
+    setTimeout(() => els.houseTotal.classList.add("flash"), 400);
+  }
 }
 
 function advanceTurn() {
@@ -530,6 +609,7 @@ function advanceTurn() {
     state.roundActive = false;
     state.activeIndex = -1;
     renderPlayers();
+    updateRoundButtons();
     setStatus("Round complete.");
   }
 }
@@ -688,8 +768,11 @@ function renderPlayers(animatePlayerId = null) {
 }
 
 // Wire events
-els.startRoundBtn.addEventListener("click", startRound);
+els.startRoundBtn.addEventListener("click", handleStartEndClick);
 els.resetBtn.addEventListener("click", resetBankroll);
+if (els.nextRoundBtn) {
+  els.nextRoundBtn.addEventListener("click", startRound);
+}
 els.cardsContainer.addEventListener("click", (e) => {
   if (e.target.classList.contains("bet-btn")) {
     const id = Number(e.target.dataset.playerId);
@@ -712,8 +795,8 @@ els.cardsContainer.addEventListener("click", (e) => {
 els.cardsContainer.innerHTML =
   "<p class='help-text'>Start a round to deal cards to up to 5 players.</p>";
 updateDisplays();
+updateHouseDisplay();
 setStatus("Waiting to start a round.");
-clearResult();
 
 // SFX toggle
 if (els.sfxToggle) {

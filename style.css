@@ -282,6 +282,52 @@ input:focus {
   animation: glowPulse 1.6s ease-in-out infinite;
 }
 
+/* End Round state - red/orange to signal stopping */
+#startRoundBtn.end-round {
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  animation: none;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+#startRoundBtn.end-round::after {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  animation: none;
+  opacity: 0.6;
+}
+
+/* Next Round button - floating in game area */
+.next-round-btn {
+  position: relative;
+  margin: 20px auto 0;
+  display: block;
+  padding: 14px 32px;
+  font-size: 16px;
+  animation: floatPulse 2.2s ease-in-out infinite;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25), 0 14px 30px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(52, 211, 153, 0.35);
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.next-round-btn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 10px;
+  border: 1px solid rgba(52, 211, 153, 0.5);
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.4);
+  opacity: 0.8;
+  animation: glowPulse 1.6s ease-in-out infinite;
+}
+
+.next-round-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35), 0 18px 36px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(52, 211, 153, 0.45);
+}
+
 .bet-btn {
   position: relative;
   animation: floatPulse 2.2s ease-in-out infinite;
@@ -652,6 +698,17 @@ button:disabled {
 .result-push .result-value,
 .result-push .result-payout {
   color: var(--muted);
+}
+
+/* House tracker colors */
+.result-value.positive,
+.result-payout.positive {
+  color: #22c55e;
+}
+
+.result-value.negative,
+.result-payout.negative {
+  color: #ef4444;
 }
 
 .flash,

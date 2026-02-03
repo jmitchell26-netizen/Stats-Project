@@ -83,16 +83,18 @@
           <div id="statusText">Waiting to start a round.</div>
         </div>
 
-        <div class="result">
-          <div class="label">Result</div>
+        <button id="nextRoundBtn" class="primary next-round-btn hidden">Next Round</button>
+
+        <div class="result house-tracker">
+          <div class="label">House</div>
           <div class="result-row">
             <div class="result-block">
-              <div class="sub-label">Total</div>
-              <div class="result-value" id="resultValue">--</div>
+              <div class="sub-label">This Round</div>
+              <div class="result-value" id="houseRound">$0.00</div>
             </div>
             <div class="result-block">
-              <div class="sub-label">Payout</div>
-              <div class="result-payout" id="payoutValue">--</div>
+              <div class="sub-label">Total</div>
+              <div class="result-payout" id="houseTotal">$0.00</div>
             </div>
           </div>
         </div>
