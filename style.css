@@ -37,9 +37,9 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='ringRed' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f87171'/%3E%3Cstop offset='100%25' stop-color='%23dc2626'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringBlue' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2360a5fa'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringGreen' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234ade80'/%3E%3Cstop offset='100%25' stop-color='%2316a34a'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringGold' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23facc15'/%3E%3Cstop offset='100%25' stop-color='%23d97706'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg opacity='0.28'%3E%3Cg transform='translate(14 10)'%3E%3Ccircle cx='20' cy='20' r='16' fill='%230b0f18'/%3E%3Ccircle cx='20' cy='20' r='16' fill='none' stroke='url(%23ringRed)' stroke-width='4'/%3E%3Ccircle cx='20' cy='20' r='6' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(70 22)'%3E%3Ccircle cx='18' cy='18' r='15' fill='%230b0f18'/%3E%3Ccircle cx='18' cy='18' r='15' fill='none' stroke='url(%23ringBlue)' stroke-width='4'/%3E%3Ccircle cx='18' cy='18' r='5' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(44 72)'%3E%3Ccircle cx='16' cy='16' r='13' fill='%230b0f18'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='url(%23ringGreen)' stroke-width='4'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(92 70)'%3E%3Ccircle cx='12' cy='12' r='10' fill='%230b0f18'/%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23ringGold)' stroke-width='3'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(6 78)'%3E%3Ccircle cx='10' cy='10' r='9' fill='%230b0f18'/%3E%3Ccircle cx='10' cy='10' r='9' fill='none' stroke='url(%23ringBlue)' stroke-width='3'/%3E%3Ccircle cx='10' cy='10' r='3' fill='%23f8fafc'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='ringRed' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f87171'/%3E%3Cstop offset='100%25' stop-color='%23dc2626'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringBlue' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2360a5fa'/%3E%3Cstop offset='100%25' stop-color='%231d4ed8'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringGreen' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234ade80'/%3E%3Cstop offset='100%25' stop-color='%2316a34a'/%3E%3C/linearGradient%3E%3ClinearGradient id='ringGold' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23facc15'/%3E%3Cstop offset='100%25' stop-color='%23d97706'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg opacity='0.7'%3E%3Cg transform='translate(14 10)'%3E%3Ccircle cx='20' cy='20' r='16' fill='%230b0f18'/%3E%3Ccircle cx='20' cy='20' r='16' fill='none' stroke='url(%23ringRed)' stroke-width='5'/%3E%3Ccircle cx='20' cy='20' r='6' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(70 22)'%3E%3Ccircle cx='18' cy='18' r='15' fill='%230b0f18'/%3E%3Ccircle cx='18' cy='18' r='15' fill='none' stroke='url(%23ringBlue)' stroke-width='5'/%3E%3Ccircle cx='18' cy='18' r='5' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(44 72)'%3E%3Ccircle cx='16' cy='16' r='13' fill='%230b0f18'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='url(%23ringGreen)' stroke-width='5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(92 70)'%3E%3Ccircle cx='12' cy='12' r='10' fill='%230b0f18'/%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23ringGold)' stroke-width='4'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23f8fafc'/%3E%3C/g%3E%3Cg transform='translate(6 78)'%3E%3Ccircle cx='10' cy='10' r='9' fill='%230b0f18'/%3E%3Ccircle cx='10' cy='10' r='9' fill='none' stroke='url(%23ringBlue)' stroke-width='4'/%3E%3Ccircle cx='10' cy='10' r='3' fill='%23f8fafc'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-repeat: repeat;
-  opacity: 0.12;
+  opacity: 0.35;
   z-index: 0;
 }
 
@@ -261,7 +261,13 @@ input:focus {
 
 .actions {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions button {
+  min-width: fit-content;
+  white-space: nowrap;
 }
 
 #startRoundBtn {
@@ -350,7 +356,7 @@ button {
   cursor: pointer;
   border: none;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   font-weight: 700;
   font-size: 14px;
   transition: opacity 0.2s ease, transform 0.1s ease;
@@ -415,12 +421,16 @@ button:disabled {
 
 .table-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .meta {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   color: var(--muted);
   font-size: 13px;
@@ -630,7 +640,8 @@ button:disabled {
   background: #0c1628;
   border: 1px dashed rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  padding: 10px;
+  padding: 14px;
+  margin: 16px 0;
 }
 
 .status .label {
@@ -647,23 +658,25 @@ button:disabled {
   background: linear-gradient(135deg, #0d1b2e, #0b1526);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  padding: 10px;
+  padding: 16px;
   position: relative;
   overflow: hidden;
 }
 
 .result-row {
   display: flex;
-  gap: 16px;
-  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: stretch;
 }
 
 .result-block {
   flex: 1;
+  min-width: 120px;
   background: linear-gradient(145deg, #0f1f33, #0d1829);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 10px;
+  padding: 12px;
 }
 
 .sub-label {
@@ -1121,4 +1134,331 @@ button.primary.success-glow-remove {
   .layout {
     grid-template-columns: 1fr;
   }
+  
+  .result-value {
+    font-size: 22px;
+  }
+  
+  .result-payout {
+    font-size: 18px;
+  }
+  
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .result-value {
+    font-size: 18px;
+  }
+  
+  .result-payout {
+    font-size: 16px;
+  }
+  
+  .quick-bets {
+    justify-content: center;
+  }
+  
+  .quick-bet-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  
+  .stat-value {
+    font-size: 12px;
+  }
+}
+
+/* ==================== PLAYER STATISTICS ==================== */
+.bottom-section {
+  margin: 20px auto;
+  max-width: 1200px;
+  width: calc(100% - 40px);
+}
+
+.stats-panel {
+  background: linear-gradient(160deg, rgba(15, 59, 47, 0.8), rgba(12, 45, 36, 0.7));
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.player-stat {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--primary);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+button.small {
+  padding: 6px 12px;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+/* ==================== QUICK BET BUTTONS ==================== */
+.quick-bets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.quick-bet-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-bet-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.quick-bet-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.quick-bet-btn:last-child {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+/* ==================== CARD DEALING ANIMATION ==================== */
+.card-view.dealing {
+  animation: dealCard 0.4s ease-out forwards;
+  opacity: 0;
+  transform: translateY(-100px) scale(0.5);
+}
+
+@keyframes dealCard {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.5) rotate(-10deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(10px) scale(1.05) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+/* ==================== SHUFFLE EFFECT ==================== */
+.shuffle-effect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  font-size: 24px;
+  color: var(--primary);
+  animation: shufflePulse 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes shufflePulse {
+  0% {
+    transform: scale(1) rotate(-2deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.1) rotate(2deg);
+    opacity: 1;
+  }
+}
+
+/* ==================== COIN RAIN ==================== */
+.coin-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 10;
+}
+
+.coin-rain.active {
+  opacity: 1;
+}
+
+.coin {
+  position: absolute;
+  top: -30px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #ffd700, #ffb347);
+  border-radius: 50%;
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3);
+  animation: coinFall 1.5s ease-in forwards;
+}
+
+.coin::before {
+  content: "$";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #92400e;
+}
+
+@keyframes coinFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ==================== FIREWORKS ==================== */
+.fireworks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  z-index: 10;
+}
+
+.fireworks.active {
+  opacity: 1;
+}
+
+.firework-burst {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: fireworkBurst 0.8s ease-out forwards;
+}
+
+.firework-burst::before,
+.firework-burst::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.firework-burst::before {
+  background: radial-gradient(circle, #ff6b6b, transparent 70%);
+  box-shadow: 
+    0 0 20px #ff6b6b,
+    30px -30px 0 #ffd93d,
+    -30px -30px 0 #6bcb77,
+    30px 30px 0 #4d96ff,
+    -30px 30px 0 #ff6b6b,
+    0 -40px 0 #ffd93d,
+    0 40px 0 #6bcb77,
+    40px 0 0 #4d96ff,
+    -40px 0 0 #ff6b6b;
+  animation: fireworkExpand 0.8s ease-out forwards;
+}
+
+@keyframes fireworkBurst {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes fireworkExpand {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ==================== FULLSCREEN BUTTON ==================== */
+#fullscreenBtn {
+  font-size: 13px;
+}
+
+/* Fullscreen mode adjustments */
+:fullscreen .page {
+  padding: 20px;
+}
+
+:fullscreen .layout {
+  max-width: 100%;
+}
+
+:fullscreen .table {
+  min-height: 70vh;
 }

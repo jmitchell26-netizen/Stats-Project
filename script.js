@@ -16,11 +16,18 @@ const els = {
   bankrollDisplay: document.getElementById("bankrollDisplay"),
   bankrollInput: document.getElementById("bankrollInput"),
   maxBetInput: document.getElementById("maxBetInput"),
-  seedInput: document.getElementById("seedInput"),
   sfxToggle: document.getElementById("sfxToggle"),
+  musicToggle: document.getElementById("musicToggle"),
+  musicUrl: document.getElementById("musicUrl"),
+  bgMusic: document.getElementById("bgMusic"),
   startRoundBtn: document.getElementById("startRoundBtn"),
   resetBtn: document.getElementById("resetBtn"),
+  resetStatsBtn: document.getElementById("resetStatsBtn"),
+  fullscreenBtn: document.getElementById("fullscreenBtn"),
   nextRoundBtn: document.getElementById("nextRoundBtn"),
+  statsContainer: document.getElementById("statsContainer"),
+  coinRain: document.getElementById("coinRain"),
+  fireworks: document.getElementById("fireworks"),
   cardsContainer: document.getElementById("cardsContainer"),
   statusText: document.getElementById("statusText"),
   anteDisplay: document.getElementById("anteDisplay"),
@@ -50,25 +57,194 @@ let state = {
   maxBet: 50,
   ante: 5,
   deck: [],
-  seed: undefined,
   activeIndex: -1,
   roundActive: false,
   sfxEnabled: true,
+  musicEnabled: false,
+  musicStarted: false,
   audioCtx: null,
   summaryTimer: null,
   houseRound: 0,    // House profit this round
   houseTotal: 0,    // House profit all-time
 };
 
-function mulberry32(seed) {
-  // Simple deterministic RNG for seeded shuffles
-  return function () {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+// ==================== PLAYER STATISTICS ====================
+const STATS_KEY = "32plus_player_stats";
+
+function loadStats() {
+  try {
+    const saved = localStorage.getItem(STATS_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
 }
+
+function saveStats(stats) {
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+function getPlayerStats(name) {
+  const stats = loadStats();
+  if (!stats[name]) {
+    stats[name] = {
+      gamesPlayed: 0,
+      wins: 0,
+      losses: 0,
+      pushes: 0,
+      totalScore: 0,
+      highestScore: 0,
+      biggestPayout: 0,
+      currentStreak: 0,
+      bestStreak: 0,
+    };
+  }
+  return stats[name];
+}
+
+function updatePlayerStats(name, { outcome, score, payout }) {
+  const stats = loadStats();
+  const playerStats = stats[name] || {
+    gamesPlayed: 0, wins: 0, losses: 0, pushes: 0,
+    totalScore: 0, highestScore: 0, biggestPayout: 0,
+    currentStreak: 0, bestStreak: 0,
+  };
+
+  playerStats.gamesPlayed += 1;
+  
+  if (outcome === "win") {
+    playerStats.wins += 1;
+    playerStats.currentStreak += 1;
+    if (playerStats.currentStreak > playerStats.bestStreak) {
+      playerStats.bestStreak = playerStats.currentStreak;
+    }
+  } else if (outcome === "lose") {
+    playerStats.losses += 1;
+    playerStats.currentStreak = 0;
+  } else {
+    playerStats.pushes += 1;
+    // Push doesn't break streak
+  }
+
+  if (score > 0) {
+    playerStats.totalScore += score;
+    if (score > playerStats.highestScore) {
+      playerStats.highestScore = score;
+    }
+  }
+
+  if (payout > playerStats.biggestPayout) {
+    playerStats.biggestPayout = payout;
+  }
+
+  stats[name] = playerStats;
+  saveStats(stats);
+  renderStats();
+}
+
+function resetAllStats() {
+  localStorage.removeItem(STATS_KEY);
+  renderStats();
+}
+
+function renderStats() {
+  if (!els.statsContainer) return;
+  const stats = loadStats();
+  const names = Object.keys(stats);
+  
+  if (names.length === 0) {
+    els.statsContainer.innerHTML = "<p class='help-text'>Play a round to see statistics.</p>";
+    return;
+  }
+
+  let html = "";
+  names.forEach((name) => {
+    const s = stats[name];
+    const winRate = s.gamesPlayed > 0 ? ((s.wins / s.gamesPlayed) * 100).toFixed(1) : 0;
+    const avgScore = s.gamesPlayed - s.pushes > 0 
+      ? (s.totalScore / (s.gamesPlayed - s.pushes)).toFixed(1) 
+      : 0;
+    
+    html += `
+      <div class="player-stat">
+        <div class="stat-name">${name}</div>
+        <div class="stat-grid">
+          <div class="stat-item"><span class="stat-label">Win Rate</span><span class="stat-value">${winRate}%</span></div>
+          <div class="stat-item"><span class="stat-label">Avg Score</span><span class="stat-value">${avgScore}</span></div>
+          <div class="stat-item"><span class="stat-label">Best Score</span><span class="stat-value">${s.highestScore}</span></div>
+          <div class="stat-item"><span class="stat-label">Biggest Win</span><span class="stat-value">$${s.biggestPayout.toFixed(0)}</span></div>
+          <div class="stat-item"><span class="stat-label">Win Streak</span><span class="stat-value">${s.currentStreak} (best: ${s.bestStreak})</span></div>
+          <div class="stat-item"><span class="stat-label">Record</span><span class="stat-value">${s.wins}W-${s.losses}L-${s.pushes}P</span></div>
+        </div>
+      </div>
+    `;
+  });
+  
+  els.statsContainer.innerHTML = html;
+}
+
+// ==================== CELEBRATION EFFECTS ====================
+function triggerCoinRain() {
+  if (!els.coinRain) return;
+  els.coinRain.innerHTML = "";
+  els.coinRain.classList.add("active");
+  
+  for (let i = 0; i < 30; i++) {
+    const coin = document.createElement("div");
+    coin.className = "coin";
+    coin.style.left = `${Math.random() * 100}%`;
+    coin.style.animationDelay = `${Math.random() * 0.5}s`;
+    coin.style.animationDuration = `${1 + Math.random() * 1}s`;
+    els.coinRain.appendChild(coin);
+  }
+  
+  setTimeout(() => {
+    els.coinRain.classList.remove("active");
+    els.coinRain.innerHTML = "";
+  }, 3000);
+}
+
+function triggerFireworks() {
+  if (!els.fireworks) return;
+  els.fireworks.innerHTML = "";
+  els.fireworks.classList.add("active");
+  
+  for (let i = 0; i < 5; i++) {
+    const burst = document.createElement("div");
+    burst.className = "firework-burst";
+    burst.style.left = `${20 + Math.random() * 60}%`;
+    burst.style.top = `${20 + Math.random() * 40}%`;
+    burst.style.animationDelay = `${i * 0.2}s`;
+    els.fireworks.appendChild(burst);
+  }
+  
+  setTimeout(() => {
+    els.fireworks.classList.remove("active");
+    els.fireworks.innerHTML = "";
+  }, 2000);
+}
+
+// ==================== FULLSCREEN ====================
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+    if (els.fullscreenBtn) els.fullscreenBtn.textContent = "⛶ Exit Fullscreen";
+  } else {
+    document.exitFullscreen().catch(() => {});
+    if (els.fullscreenBtn) els.fullscreenBtn.textContent = "⛶ Fullscreen";
+  }
+}
+
+document.addEventListener("fullscreenchange", () => {
+  if (els.fullscreenBtn) {
+    els.fullscreenBtn.textContent = document.fullscreenElement ? "⛶ Exit Fullscreen" : "⛶ Fullscreen";
+  }
+});
+
 
 function buildDeck() {
   const cards = [];
@@ -80,10 +256,9 @@ function buildDeck() {
   return cards;
 }
 
-function shuffleDeck(cards, seed) {
-  const rng = seed !== undefined && !Number.isNaN(seed) ? mulberry32(seed) : Math.random;
+function shuffleDeck(cards) {
   for (let i = cards.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1));
+    const j = Math.floor(Math.random() * (i + 1));
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
   return cards;
@@ -101,7 +276,7 @@ function scoreHand(hand) {
 
 function buildHandElement(
   hand,
-  { revealAll = false, animate = false, firstCardRevealed = true, isActive = false } = {}
+  { revealAll = false, animate = false, firstCardRevealed = true, isActive = false, dealAnimation = false } = {}
 ) {
   const wrapper = document.createElement("div");
   wrapper.className = "cards";
@@ -111,6 +286,13 @@ function buildHandElement(
     const shouldShow = revealAll || (firstCardRevealed && idx === 0);
     const cardEl = document.createElement("div");
     cardEl.className = "card-view";
+    
+    // Deal animation - cards slide in from top
+    if (dealAnimation) {
+      cardEl.classList.add("dealing");
+      cardEl.style.animationDelay = `${idx * 0.1}s`;
+    }
+    
     if (isActive && shouldShow) {
       cardEl.classList.add("active-glow");
     }
@@ -154,7 +336,8 @@ function buildHandElement(
       cardEl.classList.remove("flipped");
       setTimeout(() => {
         cardEl.classList.add("flipped");
-      }, 120 * idx);
+        playSfx("flip");
+      }, 150 * idx);
     });
   }
 
@@ -225,8 +408,6 @@ function startRound() {
   resumeAudioCtx();
   const bankroll = Number(els.bankrollInput.value);
   const maxBet = Number(els.maxBetInput.value);
-  const seedRaw = els.seedInput.value;
-  const seed = seedRaw === "" ? undefined : Number(seedRaw);
   const playerNames = els.playerNameInputs
     .map((input, idx) => {
       const trimmed = input.value.trim();
@@ -248,8 +429,7 @@ function startRound() {
 
   state.maxBet = maxBet;
   state.ante = Number((maxBet * 0.1).toFixed(2));
-  state.seed = seed;
-  state.deck = shuffleDeck(buildDeck(), seed);
+  state.deck = shuffleDeck(buildDeck());
   state.sfxEnabled = els.sfxToggle?.checked ?? true;
 
   state.players = Array.from({ length: playerCount }, (_v, idx) => {
@@ -291,15 +471,19 @@ function startRound() {
   }
   state.roundActive = state.activeIndex !== -1;
 
-  renderPlayers();
-  updateDisplays();
-  updateHouseDisplay();
-  updateRoundButtons();
-  setStatus(
-    state.roundActive
-      ? `Dealt ${playerCount} player${playerCount > 1 ? "s" : ""}. ${state.players[state.activeIndex].name}'s turn.`
-      : "No eligible players for this round."
-  );
+  // Shuffle animation effect
+  els.cardsContainer.innerHTML = '<div class="shuffle-effect">🎴 Shuffling...</div>';
+  setTimeout(() => {
+    renderPlayers(null, true); // Deal with animation
+    updateDisplays();
+    updateHouseDisplay();
+    updateRoundButtons();
+    setStatus(
+      state.roundActive
+        ? `Dealt ${playerCount} player${playerCount > 1 ? "s" : ""}. ${state.players[state.activeIndex].name}'s turn.`
+        : "No eligible players for this round."
+    );
+  }, 600);
 }
 
 function placeBet(playerId, betValue) {
@@ -347,6 +531,7 @@ function placeBet(playerId, betValue) {
     playSfx("push");
     triggerSheen();
     showSummaryOverlay({ total: 0, payout: 0, outcome: "Push" });
+    updatePlayerStats(player.name, { outcome: "push", score: 0, payout: 0 });
     advanceTurn();
     return;
   }
@@ -395,6 +580,23 @@ function placeBet(playerId, betValue) {
   });
   playSfx(total >= 32 ? "win" : "lose");
   triggerSheen();
+
+  // Update player stats
+  updatePlayerStats(player.name, {
+    outcome: total >= 32 ? "win" : "lose",
+    score: total,
+    payout,
+  });
+
+  // Celebration effects for big wins
+  if (total >= 40) {
+    // High score (40+) gets fireworks
+    triggerFireworks();
+  }
+  if (payout >= 50) {
+    // Big payout gets coin rain
+    triggerCoinRain();
+  }
 
   advanceTurn();
 }
@@ -615,7 +817,6 @@ function advanceTurn() {
 }
 
 function ensureAudioCtx() {
-  if (!state.sfxEnabled) return null;
   if (!state.audioCtx) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return null;
@@ -628,7 +829,6 @@ function ensureAudioCtx() {
 }
 
 function resumeAudioCtx() {
-  if (!state.sfxEnabled) return;
   if (state.audioCtx && state.audioCtx.state === "suspended") {
     state.audioCtx.resume().catch(() => {});
   } else if (!state.audioCtx) {
@@ -637,35 +837,45 @@ function resumeAudioCtx() {
 }
 
 function playSfx(type) {
+  if (!state.sfxEnabled) return;
   const ctx = ensureAudioCtx();
   if (!ctx) return;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.type = "triangle";
+  osc.type = "square";
   let freq = 440;
-  let duration = 0.18;
+  let duration = 0.25;
+  let volume = 0.5;
   switch (type) {
     case "flip":
-      freq = 600;
-      duration = 0.16;
+      freq = 800;
+      duration = 0.12;
+      volume = 0.4;
+      osc.type = "sine";
       break;
     case "win":
-      freq = 760;
-      duration = 0.22;
+      freq = 880;
+      duration = 0.35;
+      volume = 0.6;
+      osc.type = "square";
       break;
     case "lose":
-      freq = 220;
-      duration = 0.24;
+      freq = 180;
+      duration = 0.4;
+      volume = 0.5;
+      osc.type = "sawtooth";
       break;
     case "push":
-      freq = 360;
-      duration = 0.2;
+      freq = 440;
+      duration = 0.25;
+      volume = 0.4;
+      osc.type = "triangle";
       break;
     default:
       break;
   }
   osc.frequency.value = freq;
-  gain.gain.value = 0.2;
+  gain.gain.value = volume;
   osc.connect(gain).connect(ctx.destination);
   const now = ctx.currentTime;
   gain.gain.setValueAtTime(0.2, now);
@@ -683,7 +893,7 @@ function triggerSheen() {
   setTimeout(() => els.sheen.classList.remove("active"), 1500);
 }
 
-function renderPlayers(animatePlayerId = null) {
+function renderPlayers(animatePlayerId = null, dealAnimation = false) {
   els.cardsContainer.innerHTML = "";
 
   state.players.forEach((player) => {
@@ -725,16 +935,36 @@ function renderPlayers(animatePlayerId = null) {
       animate: animatePlayerId === player.id && (player.revealAll || player.settled),
       firstCardRevealed: isActive && player.awaitingBet && !player.revealAll && !player.settled,
       isActive,
+      dealAnimation,
     });
     panel.appendChild(handEl);
 
     const actions = document.createElement("div");
     actions.className = "betting";
+    
+    // Quick bet buttons
+    const quickBets = document.createElement("div");
+    quickBets.className = "quick-bets";
+    const quickLabel = document.createElement("span");
+    quickLabel.className = "quick-label";
+    quickLabel.textContent = "Quick bet:";
+    quickBets.appendChild(quickLabel);
+    
+    [10, 25, 50, "All"].forEach((amount) => {
+      const qBtn = document.createElement("button");
+      qBtn.className = "quick-bet-btn";
+      qBtn.textContent = amount === "All" ? "All-in" : `$${amount}`;
+      qBtn.dataset.playerId = player.id;
+      qBtn.dataset.amount = amount;
+      qBtn.disabled = !isActive || !player.awaitingBet;
+      quickBets.appendChild(qBtn);
+    });
+    
     const betInfo = document.createElement("div");
     betInfo.className = "bet-info";
 
     const label = document.createElement("label");
-    label.textContent = "Bet after first flip";
+    label.textContent = "Or enter custom bet:";
     const input = document.createElement("input");
     input.type = "number";
     input.min = "0";
@@ -758,6 +988,7 @@ function renderPlayers(animatePlayerId = null) {
     pushBtn.dataset.playerId = player.id;
     pushBtn.disabled = !isActive || !player.awaitingBet;
 
+    actions.appendChild(quickBets);
     actions.appendChild(betInfo);
     actions.appendChild(btn);
     actions.appendChild(pushBtn);
@@ -788,14 +1019,46 @@ els.cardsContainer.addEventListener("click", (e) => {
     e.target.classList.add("success-glow");
     setTimeout(() => e.target.classList.remove("success-glow"), 400);
     placeBet(id, 0);
+  } else if (e.target.classList.contains("quick-bet-btn")) {
+    const id = Number(e.target.dataset.playerId);
+    const amount = e.target.dataset.amount;
+    const player = state.players.find((p) => p.id === id);
+    resumeAudioCtx();
+    e.target.classList.add("success-glow");
+    setTimeout(() => e.target.classList.remove("success-glow"), 400);
+    
+    // Calculate bet amount
+    let betAmount;
+    if (amount === "All") {
+      betAmount = Math.min(player?.bankroll || 0, state.maxBet);
+    } else {
+      betAmount = Math.min(Number(amount), player?.bankroll || 0, state.maxBet);
+    }
+    
+    placeBet(id, betAmount);
   }
 });
+
+// Fullscreen button
+if (els.fullscreenBtn) {
+  els.fullscreenBtn.addEventListener("click", toggleFullscreen);
+}
+
+// Reset stats button
+if (els.resetStatsBtn) {
+  els.resetStatsBtn.addEventListener("click", () => {
+    if (confirm("Reset all player statistics?")) {
+      resetAllStats();
+    }
+  });
+}
 
 // Initialize UI
 els.cardsContainer.innerHTML =
   "<p class='help-text'>Start a round to deal cards to up to 5 players.</p>";
 updateDisplays();
 updateHouseDisplay();
+renderStats();
 setStatus("Waiting to start a round.");
 
 // SFX toggle
@@ -808,14 +1071,97 @@ if (els.sfxToggle) {
   });
 }
 
+// Music toggle
+const DEFAULT_MUSIC_URL = "casino-music.mp3";
+
+function updateMusicSource() {
+  if (!els.bgMusic) return;
+  const customUrl = els.musicUrl?.value?.trim();
+  const url = customUrl || DEFAULT_MUSIC_URL;
+  
+  // Only update if URL changed
+  if (els.bgMusic.src !== url) {
+    els.bgMusic.src = url;
+    els.bgMusic.load();
+  }
+}
+
+function startMusic() {
+  if (!els.bgMusic || !state.musicEnabled) return;
+  
+  updateMusicSource();
+  els.bgMusic.volume = 0.4;
+  
+  const playPromise = els.bgMusic.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      state.musicStarted = true;
+      console.log("Music started playing");
+    }).catch((err) => {
+      console.log("Music play blocked:", err.message);
+      state.musicStarted = false;
+    });
+  }
+}
+
+function stopMusic() {
+  if (!els.bgMusic) return;
+  els.bgMusic.pause();
+  state.musicStarted = false;
+}
+
+function tryStartMusic() {
+  if (state.musicEnabled && !state.musicStarted && els.bgMusic) {
+    startMusic();
+  }
+}
+
+if (els.musicToggle) {
+  els.musicToggle.addEventListener("change", () => {
+    state.musicEnabled = els.musicToggle.checked;
+    if (state.musicEnabled) {
+      startMusic();
+    } else {
+      stopMusic();
+    }
+  });
+}
+
+// Update music when URL input changes
+if (els.musicUrl) {
+  els.musicUrl.addEventListener("change", () => {
+    if (state.musicEnabled) {
+      stopMusic();
+      state.musicStarted = false;
+      startMusic();
+    }
+  });
+}
+
+// Pre-load music element and add error handling
+if (els.bgMusic) {
+  els.bgMusic.addEventListener("error", (e) => {
+    console.error("Music load error - try a different URL");
+  });
+  els.bgMusic.addEventListener("canplaythrough", () => {
+    console.log("Music loaded and ready to play");
+  });
+}
+
 // Unlock audio on first user interaction (required by some browsers)
 window.addEventListener(
   "pointerdown",
   () => {
     resumeAudioCtx();
+    tryStartMusic();
   },
   { once: true }
 );
+
+// Also try to start music on any click if it's enabled but not playing
+document.addEventListener("click", () => {
+  tryStartMusic();
+});
 
 // Dismiss overlay on click
 if (els.summaryOverlay) {

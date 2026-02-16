@@ -47,19 +47,27 @@
             <span class="slider"></span>
           </label>
         </div>
+        <div class="field switch">
+          <label for="musicToggle">Background music</label>
+          <label class="toggle">
+            <input id="musicToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="field music-url-field">
+          <label for="musicUrl">Music URL (optional)</label>
+          <input id="musicUrl" type="url" placeholder="Paste MP3 URL here..." />
+          <p class="help-text">Paste a direct link to an MP3 file, or leave blank for default.</p>
+        </div>
         <div class="field">
           <label for="maxBetInput">Max Bet ($)</label>
           <input id="maxBetInput" type="number" min="1" step="1" value="50" />
           <p class="help-text">Ante is always 10% of max bet.</p>
         </div>
-        <div class="field">
-          <label for="seedInput">Seed (optional)</label>
-          <input id="seedInput" type="number" step="1" placeholder="e.g., 42" />
-          <p class="help-text">Use a seed for reproducible shuffles.</p>
-        </div>
         <div class="actions">
           <button id="startRoundBtn" class="primary">Start Round</button>
           <button id="resetBtn" class="ghost">Reset Bankroll</button>
+          <button id="fullscreenBtn" class="ghost">⛶ Fullscreen</button>
         </div>
       </section>
 
@@ -105,11 +113,21 @@
         <ul id="historyList"></ul>
       </section>
     </main>
+
+    <section class="stats-panel card bottom-section">
+      <h2>Player Statistics</h2>
+      <div id="statsContainer" class="stats-container">
+        <p class="help-text">Play a round to see statistics.</p>
+      </div>
+      <button id="resetStatsBtn" class="ghost small">Reset Stats</button>
+    </section>
   </div>
 
   <div id="summaryOverlay" class="summary-overlay hidden">
     <div class="summary-modal" id="summaryModal">
       <div class="summary-confetti"></div>
+      <div class="coin-rain" id="coinRain"></div>
+      <div class="fireworks" id="fireworks"></div>
       <div class="summary-title">Round Result</div>
       <div class="summary-values" id="summaryValues">
         <div class="summary-block total">
@@ -125,6 +143,9 @@
       <div class="summary-continue">Click to continue</div>
     </div>
   </div>
+
+  <!-- Background music -->
+  <audio id="bgMusic" loop preload="none"></audio>
 
   <script src="script.js"></script>
 </body>
